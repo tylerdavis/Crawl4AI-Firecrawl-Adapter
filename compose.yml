@@ -7,8 +7,8 @@ version: '3.8'
 x-base-config: &base-config
   ports:
     - "11235:11235"  # Gunicorn port
-  env_file:
-    - .llm.env       # API keys (create from .llm.env.example)
+  # env_file:
+    # - .llm.env       # API keys (create from .llm.env.example)
   # Uncomment to set default environment variables (will overwrite .llm.env)
   # environment:
   #   - OPENAI_API_KEY=${OPENAI_API_KEY:-}
