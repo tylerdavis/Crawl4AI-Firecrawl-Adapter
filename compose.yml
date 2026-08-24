@@ -27,7 +27,7 @@ x-base-config: &base-config
     - ALL
   security_opt:
     - no-new-privileges:true
-  pids_limit: 512
+  # pids_limit: 512
   # Read-only root filesystem; only these paths are writable (tmpfs).
   read_only: true
   tmpfs:
@@ -59,6 +59,9 @@ services:
     # 2. Override with local image via: IMAGE=local-test docker compose up
     image: ${IMAGE:-unclecode/crawl4ai:${TAG:-latest}}    
     
+    ports:
+      - "11235:11235"  # Gunicorn port
+
     # Inherit shared config
     <<: *base-config
 
