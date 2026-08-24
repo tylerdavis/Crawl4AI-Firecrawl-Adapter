@@ -24,3 +24,5 @@ services:
     depends_on:
       - crawl4ai
     restart: unless-stopped
+    ports:
+      - "11236:3002"
