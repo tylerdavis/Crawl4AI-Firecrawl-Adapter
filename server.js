@@ -267,11 +267,7 @@ function buildCrawl4aiPayload(body) {
     crawlerParams.included_tags = body.includeTags;
   }
 
-  const browserParams = {
-    headless: true,
-    text_mode: false,
-    light_mode: true,
-  };
+  const browserParams = {};
 
   if (Object.keys(headers).length > 0) {
     browserParams.headers = headers;
@@ -286,12 +282,17 @@ function buildCrawl4aiPayload(body) {
     browserParams.ignore_https_errors = true;
   }
 
-  return {
+  const payload = {
     urls: [body.url],
-    browser_config: wrapTypedConfig('BrowserConfig', browserParams),
     crawler_config: wrapTypedConfig('CrawlerRunConfig', crawlerParams),
     requested_formats: bodyFormats,
   };
+
+  if (Object.keys(browserParams).length > 0) {
+    payload.browser_config = wrapTypedConfig('BrowserConfig', browserParams);
+  }
+
+  return payload;
 }
 
 class HttpError extends Error {
@@ -486,7 +487,7 @@ const server = http.createServer(async (request, response) => {
     json(response, 200, {
       ok: true,
       name: 'firecrawl-crawl4ai-adapter',
-      version: '0.1.3',
+      version: '0.1.4',
       crawl4aiBaseUrl: CRAWL4AI_BASE_URL,
     });
     return;

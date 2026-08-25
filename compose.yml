@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     environment:
       CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:-}
+    volumes:
+      - ./config.yml:/app/config.yml:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11235/health"]
       interval: 30s
@@ -13,7 +15,7 @@ services:
       start_period: 40s
     shm_size: 2gb
     ports:
-      - "11235:11235"  
+      - "11235:11235"
 
   firecrawl-crawl4ai-adapter:
     build:

@@ -54,6 +54,8 @@ services:
     restart: unless-stopped
     environment:
       CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:-}
+    volumes:
+      - ./config.yml:/app/config.yml:ro
     shm_size: 2gb
 
   firecrawl-crawl4ai-adapter:
@@ -80,6 +82,25 @@ gate, which then requires every request to carry `Authorization: Bearer <token>`
 Set the same `CRAWL4AI_API_TOKEN` on the adapter service and it forwards that
 bearer token on all upstream Crawl4AI calls. Leave it unset to keep the previous
 unauthenticated, loopback-only behavior.
+
+### Browser pool warming (scrape latency)
+
+Crawl4AI pre-loads a single "permanent" browser at startup, keyed to its default
+browser config. Requests that match that config reuse the warm browser; requests
+carrying a custom browser config spawn a fresh browser (a ~2s cold start) that is
+reaped after `crawler.pool.idle_ttl_sec` of inactivity.
+
+For a standard scrape (no `mobile`, custom `headers`, or `ignoreHttpsErrors`) the
+adapter now sends **no** `browser_config`, so the request rides Crawl4AI's warm
+default browser instead of minting a cold one. A custom browser config is only
+attached when one of those options is actually requested.
+
+The optional `config.yml` in this repo is mounted over Crawl4AI's baked config to
+keep warmed browsers alive longer (`idle_ttl_sec: 1800`) and to make Crawl4AI
+refuse new browsers earlier under memory pressure (`memory_threshold_percent:
+85`). It is a full copy of the image's hardened default config with only those two
+values changed — if you upgrade Crawl4AI, re-sync it so you don't pin an outdated
+config. Drop the `volumes:` mount to fall back to the image defaults.
 
 If your stack uses custom Docker networks, make sure your app, `crawl4ai`, and `firecrawl-crawl4ai-adapter` are on the same network.
 
