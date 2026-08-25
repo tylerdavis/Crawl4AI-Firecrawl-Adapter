@@ -52,6 +52,8 @@ services:
     image: unclecode/crawl4ai:latest
     container_name: crawl4ai
     restart: unless-stopped
+    environment:
+      CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:-}
     shm_size: 2gb
 
   firecrawl-crawl4ai-adapter:
@@ -61,11 +63,23 @@ services:
     environment:
       PORT: 3002
       CRAWL4AI_BASE_URL: http://crawl4ai:11235
+      CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:-}
       FIRECRAWL_API_KEY: change-me
     depends_on:
       - crawl4ai
     restart: unless-stopped
 ```
+
+### Authenticating to Crawl4AI
+
+Recent `unclecode/crawl4ai` images bind to loopback only and refuse to expose
+the API on `0.0.0.0` unless a credential is present. Setting `CRAWL4AI_API_TOKEN`
+on the `crawl4ai` service makes it bind on all interfaces and enables its auth
+gate, which then requires every request to carry `Authorization: Bearer <token>`.
+
+Set the same `CRAWL4AI_API_TOKEN` on the adapter service and it forwards that
+bearer token on all upstream Crawl4AI calls. Leave it unset to keep the previous
+unauthenticated, loopback-only behavior.
 
 If your stack uses custom Docker networks, make sure your app, `crawl4ai`, and `firecrawl-crawl4ai-adapter` are on the same network.
 
@@ -116,6 +130,7 @@ docker compose up -d librechat
 
 - `FIRECRAWL_API_KEY`: can be any shared value, as long as your app and the adapter use the same one.
 - `CRAWL4AI_BASE_URL`: change this if your Crawl4AI service uses a different service name or port.
+- `CRAWL4AI_API_TOKEN`: set this (matching the token on the `crawl4ai` service) when Crawl4AI has authentication enabled; the adapter sends it as a bearer token upstream.
 - `PORT`: change this if you want the adapter to listen on a different internal port.
 - `context`: change this if the adapter folder is in a different location.
 - Docker networks: all relevant services must be able to reach each other by service name.

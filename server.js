@@ -6,7 +6,12 @@ const CRAWL4AI_BASE_URL = stripTrailingSlash(
   process.env.CRAWL4AI_BASE_URL || 'http://crawl4ai:11235',
 );
 const API_KEY = process.env.FIRECRAWL_API_KEY || process.env.API_KEY || '';
+const CRAWL4AI_API_TOKEN = process.env.CRAWL4AI_API_TOKEN || '';
 const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 120000);
+
+function crawl4aiAuthHeaders() {
+  return CRAWL4AI_API_TOKEN ? { authorization: `Bearer ${CRAWL4AI_API_TOKEN}` } : {};
+}
 
 function stripTrailingSlash(value) {
   return value.replace(/\/+$/, '');
@@ -174,6 +179,7 @@ async function fetchJson(url, options = {}) {
       signal: controller.signal,
       headers: {
         ...(options.body ? { 'content-type': 'application/json' } : {}),
+        ...crawl4aiAuthHeaders(),
         ...(options.headers || {}),
       },
     });
@@ -202,7 +208,10 @@ async function fetchText(url, options = {}) {
     const response = await fetch(url, {
       ...options,
       signal: controller.signal,
-      headers: options.headers || {},
+      headers: {
+        ...crawl4aiAuthHeaders(),
+        ...(options.headers || {}),
+      },
     });
     const text = await response.text();
     return { response, text };
@@ -477,7 +486,7 @@ const server = http.createServer(async (request, response) => {
     json(response, 200, {
       ok: true,
       name: 'firecrawl-crawl4ai-adapter',
-      version: '0.1.2',
+      version: '0.1.3',
       crawl4aiBaseUrl: CRAWL4AI_BASE_URL,
     });
     return;
