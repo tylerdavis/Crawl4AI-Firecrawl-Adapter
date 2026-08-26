@@ -43,7 +43,7 @@ limits:
   queue:                    # background job queue for /crawl/job and /llm/job
     maxsize: 1000           # max queued jobs (503 when full); 0 = unbounded
     workers: 4              # concurrent background workers
-    per_principal: 0        # max concurrent jobs per caller (429 over cap); 0 = unlimited
+    per_principal: 3        # max concurrent jobs per caller (429 over cap); 0 = unlimited
 
 # Rate Limiting Configuration
 rate_limiting:
@@ -82,7 +82,7 @@ crawler:
     stream_init: 30.0  # Timeout for stream initialization
     batch_process: 300.0  # Timeout for batch processing
   pool:
-    max_pages: 40                          # ← GLOBAL_SEM permits
+    max_pages: 6                           # ← GLOBAL_SEM permits
     idle_ttl_sec: 1800                    # ← 30 min janitor cutoff
   browser:
     kwargs:

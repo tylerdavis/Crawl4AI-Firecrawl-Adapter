@@ -14,6 +14,10 @@ services:
       retries: 3
       start_period: 40s
     shm_size: 2gb
+    cpus: 3.0
+    mem_limit: 6g
+    mem_reservation: 1g
+    pids_limit: 512
     ports:
       - "11235:11235"
 
@@ -29,5 +33,8 @@ services:
     depends_on:
       - crawl4ai
     restart: unless-stopped
+    cpus: 0.5
+    mem_limit: 512m
+    pids_limit: 256
     ports:
       - "11236:3002"
