@@ -1,6 +1,6 @@
 services:
   crawl4ai:
-    image: unclecode/crawl4ai:latest
+    image: unclecode/crawl4ai:0.9.5
     container_name: crawl4ai
     environment:
       CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:-}
